@@ -28,7 +28,7 @@ const DogSchema = new mongoose.Schema({
 
 });
 
-DogSchema.statics.findByName = (name, callback) => {
+DogSchema.statics.findByDogName = (name, callback) => {
   const search = {
     name,
   };
@@ -38,5 +38,5 @@ DogSchema.statics.findByName = (name, callback) => {
 
 DogModel = mongoose.model('Dog', DogSchema);
 
-module.exports.CatModel = DogModel;
-module.exports.CatSchema = DogSchema;
+module.exports.DogModel = DogModel;
+module.exports.DogSchema = DogSchema;

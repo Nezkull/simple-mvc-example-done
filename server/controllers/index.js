@@ -4,6 +4,8 @@ const models = require('../models');
 // get the Cat model
 const Cat = models.Cat.CatModel;
 
+const Dog = models.Dog.DogModel;
+
 // default fake data so that we have something to work with until we make a real Cat
 const defaultData = {
   name: 'unknown',
@@ -45,6 +47,10 @@ const readAllCats = (req, res, callback) => {
   Cat.find(callback).lean();
 };
 
+const readAllDogs = (req, res, callback) => {
+  Dog.find(callback).lean();  
+};
+
 
 // function to find a specific cat on request.
 // Express functions always receive the request and the response.
@@ -61,7 +67,7 @@ const readCat = (req, res) => {
     // return success
     return res.json(doc);
   };
-
+    
   // Call the static function attached to CatModels.
   // This was defined in the Schema in the Model file.
   // This is a custom static function added to the CatModel
@@ -69,6 +75,22 @@ const readCat = (req, res) => {
   // You can find the findByName function in the model file.
   Cat.findByName(name1, callback);
 };
+
+const readDog = (req, res) => {
+    const name1 = req.query.name;
+    
+    const callback = (err, doc) => {
+        if(err) {
+            return res.status(500).json({err});
+        }
+        
+        return res.json(doc);
+    };
+    
+    Dog.findByDogName(name1, callback);
+};
+
+
 
 // function to handle requests to the page1 page
 // controller functions in Express receive the full HTTP request
@@ -112,6 +134,16 @@ const hostPage3 = (req, res) => {
     // actually calls index.jade. A second parameter of JSON can be passed
     // into the jade to be used as variables with #{varName}
   res.render('page3');
+    
+    const callback = (err, docs) => {
+        if(err) {
+            return res.status(500).json({err});
+        }
+      
+        return res.render('page3', { dogs: docs});
+    };
+    
+    readAllDogs(req, res, callback);
 };
 
 // function to handle get request to send the name
@@ -148,9 +180,18 @@ const setName = (req, res) => {
     bedsOwned: req.body.beds,
   };
 
+  const dogData = {
+      name,
+      breed,
+      age: req.body.age,
+  };
+    
   // create a new object of CatModel with the object to save
   const newCat = new Cat(catData);
 
+  const newDog = new Dog(dogData)  ;
+  
+    
   // create new save promise for the database
   const savePromise = newCat.save();
 
@@ -208,6 +249,24 @@ const searchName = (req, res) => {
   });
 };
 
+const searchDogName = (req, res) => {
+    if(!req.query.name) {
+        return res.status(400).json({error: 'Name is required to perform a search'});
+    }
+    
+    return Dog.findByName(req.query.name, (err, doc) => {
+       if(err) {
+           return res.status(500).json({err});
+       } 
+        
+       if(!doc) {
+           return res.json({error: 'No dogs found'});
+       }
+        
+        return res.json({name: doc.name, breed: doc.breed, age: doc.age});
+    });
+};
+
 // function to handle a request to update the last added object
 // this PURELY exists to show you how to update a model object
 // Normally for an update, you'd get data from the client,
@@ -260,5 +319,6 @@ module.exports = {
   setName,
   updateLast,
   searchName,
+  searchDogName,
   notFound,
 };
