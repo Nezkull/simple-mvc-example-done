@@ -143,6 +143,7 @@ const hostPage3 = (req, res) => {
   // into the jade to be used as variables with #{varName}
   res.render('page3');
 
+  /*
   const callback = (err, docs) => {
     if (err) {
       return res.status(500).json({ err });
@@ -152,13 +153,23 @@ const hostPage3 = (req, res) => {
   };
 
   readAllDogs(req, res, callback);
+  */
 };
 
-/*
+
 const hostPage4 = (req, res) => {
+  const callback = (err, docs) => {
+    if (err) {
+      return res.status(500).json({ err }); // if error, return it
+    }
 
+    // return success
+    return res.render('page4', { dogs: docs });
+  };
+
+  readAllDogs(req, res, callback);
 };
-*/
+
 
 // function to handle get request to send the name
 // controller functions in Express receive the full HTTP request
@@ -290,7 +301,7 @@ const searchDogName = (req, res) => {
     return res.status(400).json({ error: 'Name is required to perform a search' });
   }
 
-  return Dog.findByName(req.query.name, (err, doc) => {
+  return Dog.findByDogName(req.query.name, (err, doc) => {
     if (err) {
       return res.status(500).json({ err });
     }
@@ -364,7 +375,7 @@ module.exports = {
   page1: hostPage1,
   page2: hostPage2,
   page3: hostPage3,
-  // page4: hostPage4,
+  page4: hostPage4,
   readCat,
   getName,
   setName,
