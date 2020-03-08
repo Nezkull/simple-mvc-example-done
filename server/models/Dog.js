@@ -12,10 +12,10 @@ const DogSchema = new mongoose.Schema({
 
   breed: {
     type: String,
-      required: true,
+    required: true,
     trim: true,
   },
-    
+
   age: {
     type: Number,
     min: 0,
