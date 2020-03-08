@@ -12,8 +12,17 @@ const defaultData = {
   bedsOwned: 0,
 };
 
+const defaultDogData = {
+    name: 'unknown',
+    breed: 'unknown',
+    age: 0,
+}
+
 // object for us to keep track of the last Cat we made and dynamically update it sometimes
 let lastAdded = new Cat(defaultData);
+
+let lastDogAdded = new Dog(defaultDogData);
+
 
 // function to handle requests to the main page
 // controller functions in Express receive the full HTTP request
@@ -146,6 +155,12 @@ const hostPage3 = (req, res) => {
     readAllDogs(req, res, callback);
 };
 
+
+const hostPage4 = (req, res) => {
+    
+};
+
+
 // function to handle get request to send the name
 // controller functions in Express receive the full HTTP request
 // and a pre-filled out response object to send
@@ -155,6 +170,11 @@ const getName = (req, res) => {
   // you can't send any more data to this user until the next response
   res.json({ name: lastAdded.name });
 };
+
+const getDogName = (req, res) => {
+  res.json({name: lastAdded.name});    
+};
+
 
 // function to handle a request to set the name
 // controller functions in Express receive the full HTTP request
@@ -180,18 +200,9 @@ const setName = (req, res) => {
     bedsOwned: req.body.beds,
   };
 
-  const dogData = {
-      name,
-      breed,
-      age: req.body.age,
-  };
-    
   // create a new object of CatModel with the object to save
   const newCat = new Cat(catData);
 
-  const newDog = new Dog(dogData)  ;
-  
-    
   // create new save promise for the database
   const savePromise = newCat.save();
 
@@ -209,6 +220,32 @@ const setName = (req, res) => {
   return res;
 };
 
+const setDogName = (req, res) => {
+  if(!req.body.firstname || !req.body.lastname){
+      return res.status(400).json({error: 'missing required parameters'});
+  }
+    
+    const name = `${req.body.firstname} ${req.body.lastname}`;
+    
+    const dogData = {
+        name,
+        breed: req.body.breed,
+        age: req.body.age,
+    };
+    
+    const newDog = new Dog(dogData);
+    
+    const savePromise = newDog.save();
+    
+    savePromise.then(() => {
+       lastDogAdded = newDog;
+        res.json({name: lastDogAdded.name, breed: lastDogAdded.breed, age: lastDogAdded.age});
+    });
+    
+    savePromise.catch((err) => res.status(500).json({err}));
+    
+    return res;
+};
 
 // function to handle requests search for a name and return the object
 // controller functions in Express receive the full HTTP request
